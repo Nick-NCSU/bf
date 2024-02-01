@@ -19,6 +19,11 @@ const BfEditor = (props: {
           value: '++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.',
           language: 'bf',
           theme: 'bf-theme',
+          automaticLayout: true,
+          minimap: {
+            enabled: false,
+          },
+          wordWrap: 'on',
         });
 
         if(props.editorRef) {

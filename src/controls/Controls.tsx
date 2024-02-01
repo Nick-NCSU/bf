@@ -4,24 +4,62 @@ import {
   InputLabel,
   TextareaAutosize,
   Button,
+  Select,
+  MenuItem,
+  Grid,
+  ListItemIcon,
 } from "@mui/material";
 
-interface FormProps {
-  stdin: string;
-  setStdin: React.Dispatch<React.SetStateAction<string>>;
-  memory: string[];
-  setMemory: React.Dispatch<React.SetStateAction<string[]>>;
-  output: string;
-  setOutput: React.Dispatch<React.SetStateAction<string>>;
-
-  disableStepBack: boolean;
+export interface FormProps {
+  state: {
+    stdin: string;
+    memory: number[];
+    output: number[];
+    disableStepBack: boolean;
+    memoryFormat?: TextFormat;
+    outputFormat?: TextFormat;
+  };
+  setState: React.Dispatch<
+    React.SetStateAction<{
+      stdin: string;
+      memory: number[];
+      output: number[];
+      disableStepBack: boolean;
+      memoryFormat?: TextFormat;
+      outputFormat?: TextFormat;
+    }>
+  >;
 
   handleRun: () => void;
   handleStepForward: () => void;
   handleStepBackward: () => void;
 }
 
-const Controls: React.FC<FormProps> = ({ stdin, setStdin, memory, output, disableStepBack, handleRun, handleStepForward, handleStepBackward }) => {
+enum TextFormat {
+  Ascii,
+  Hexadecimal,
+  Decimal,
+}
+
+const formatText = (text: number[], format?: TextFormat) => {
+  switch (format) {
+    case TextFormat.Ascii:
+      return text.map((cell) => String.fromCharCode(cell)).join("");
+    case TextFormat.Hexadecimal:
+      return text.map((cell) => cell.toString(16)).join(" ");
+    case TextFormat.Decimal:
+      return text.join(" ");
+  }
+};
+
+const Controls: React.FC<FormProps> = ({
+  state: { disableStepBack, memory, output, stdin, memoryFormat, outputFormat },
+  state,
+  setState,
+  handleRun,
+  handleStepForward,
+  handleStepBackward,
+}) => {
   return (
     <form>
       <TextField
@@ -29,22 +67,79 @@ const Controls: React.FC<FormProps> = ({ stdin, setStdin, memory, output, disabl
         variant="outlined"
         fullWidth
         value={stdin}
-        onChange={(e) => setStdin(e.target.value)}
+        onChange={(e) => setState({ ...state, stdin: e.target.value })}
       />
 
       <FormControl fullWidth>
-        <InputLabel htmlFor="memory">Memory</InputLabel>
-        <TextareaAutosize
-          id="memory"
-          value={memory.join(" ")}
-          readOnly
-          minRows={3}
-          maxRows={5}
-        />
+        <Grid container alignItems="center" spacing={2}>
+          <Grid item xs={10}>
+            <TextareaAutosize
+              id="memory"
+              value={formatText(memory, memoryFormat)}
+              readOnly
+              minRows={3}
+              maxRows={5}
+              style={{ width: "100%" }}
+            />
+          </Grid>
+          <Grid item xs={2}>
+            <Select
+              value={memoryFormat}
+              onChange={(e) =>
+                setState({
+                  ...state,
+                  memoryFormat: e.target.value as TextFormat,
+                })
+              }
+              defaultValue={TextFormat.Decimal}
+              style={{ width: "100%" }}
+            >
+              <MenuItem value={TextFormat.Ascii}>Ascii</MenuItem>
+              <MenuItem value={TextFormat.Hexadecimal}>Hex</MenuItem>
+              <MenuItem value={TextFormat.Decimal}>Decimal</MenuItem>
+            </Select>
+          </Grid>
+        </Grid>
+      </FormControl>
+
+      <FormControl fullWidth>
+        <Grid container alignItems="center" spacing={2}>
+          <Grid item xs={10}>
+            <TextareaAutosize
+              id="output"
+              value={formatText(output, outputFormat)}
+              readOnly
+              minRows={3}
+              maxRows={5}
+              style={{ width: "100%" }}
+            />
+          </Grid>
+          <Grid item xs={2}>
+            <Select
+              value={outputFormat}
+              onChange={(e) =>
+                setState({
+                  ...state,
+                  outputFormat: e.target.value as TextFormat,
+                })
+              }
+              defaultValue={TextFormat.Ascii}
+              style={{ width: "100%" }}
+            >
+              <MenuItem value={TextFormat.Ascii}>Ascii</MenuItem>
+              <MenuItem value={TextFormat.Hexadecimal}>Hex</MenuItem>
+              <MenuItem value={TextFormat.Decimal}>Decimal</MenuItem>
+            </Select>
+          </Grid>
+        </Grid>
       </FormControl>
 
       <div className="button-container">
-        <Button variant="contained" onClick={handleStepBackward} disabled={disableStepBack}>
+        <Button
+          variant="contained"
+          onClick={handleStepBackward}
+          disabled={disableStepBack}
+        >
           Step Backward
         </Button>
         <Button variant="contained" onClick={handleStepForward}>
@@ -54,19 +149,8 @@ const Controls: React.FC<FormProps> = ({ stdin, setStdin, memory, output, disabl
           Run
         </Button>
       </div>
-
-      <FormControl fullWidth>
-        <InputLabel htmlFor="output">Output</InputLabel>
-        <TextareaAutosize
-          id="output"
-          value={output}
-          readOnly
-          minRows={3}
-          maxRows={5}
-        />
-      </FormControl>
     </form>
   );
-}
+};
 
 export default Controls;
