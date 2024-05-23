@@ -12,6 +12,7 @@ export class BfEngine {
   private stdin: string;
   private jumpMap: { [programCounter: number]: number } = {};
   private jumpHistory: { [programCounter: number]: number } = {};
+  private stdinHistory: { [programCounter: number]: number } = {};
 
   private debug: boolean;
   private breakpoint: string;
@@ -41,7 +42,13 @@ export class BfEngine {
     }
   }
 
+  /**
+   * Step Forward
+   */
   public step() {
+    if(this.programCounter >= this.instructions.length) {
+      return;
+    }
     const instruction = this.instructions[this.programCounter];
     switch(instruction) {
       case "<":
@@ -77,7 +84,13 @@ export class BfEngine {
     this.stepCount++;
   }
 
+  /**
+   * Step back
+   */
   public stepBack() {
+    if(this.stepCount === 0) {
+      return;
+    }
     this.programCounter--;
     this.stepCount--;
     const instruction = this.instructions[this.programCounter];
@@ -222,13 +235,21 @@ export class BfEngine {
 
   private readValue() {
     const c = this.stdin[0];
-    this.stdin = this.stdin.slice(1);
-    this.memory[this.addressPointer] = c.charCodeAt(0);
+    if(c !== undefined) {
+      this.stdin = this.stdin.slice(1);
+      this.stdinHistory[this.stepCount] = this.memory[this.addressPointer] ?? 0;
+      this.memory[this.addressPointer] = c.charCodeAt(0);
+    } else {
+      this.stdinHistory[this.stepCount] = this.memory[this.addressPointer] ?? 0;
+      this.memory[this.addressPointer] = 0;
+    }
   }
 
   private unreadValue() {
-    const c = this.stdout[this.stdout.length - 1];
-    this.stdout = this.stdout.slice(0, -1);
-    this.stdin = c + this.stdin;
+    if(this.stdinHistory[this.stepCount] !== undefined) {
+      this.stdin = String.fromCharCode(this.memory[this.addressPointer]) + this.stdin;
+      this.memory[this.addressPointer] = this.stdinHistory[this.stepCount];
+      delete this.stdinHistory[this.stepCount];
+    }
   }
 }
