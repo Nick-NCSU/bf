@@ -1,45 +1,13 @@
 import {
   TextField,
   FormControl,
-  InputLabel,
   TextareaAutosize,
   Button,
   Select,
   MenuItem,
   Grid,
-  ListItemIcon,
 } from "@mui/material";
-
-export interface FormProps {
-  state: {
-    stdin: string;
-    memory: number[];
-    output: number[];
-    disableStepBack: boolean;
-    memoryFormat?: TextFormat;
-    outputFormat?: TextFormat;
-  };
-  setState: React.Dispatch<
-    React.SetStateAction<{
-      stdin: string;
-      memory: number[];
-      output: number[];
-      disableStepBack: boolean;
-      memoryFormat?: TextFormat;
-      outputFormat?: TextFormat;
-    }>
-  >;
-
-  handleRun: () => void;
-  handleStepForward: () => void;
-  handleStepBackward: () => void;
-}
-
-enum TextFormat {
-  Ascii,
-  Hexadecimal,
-  Decimal,
-}
+import { FormProps, TextFormat } from "../types";
 
 const formatText = (text: number[], format?: TextFormat) => {
   switch (format) {
@@ -91,7 +59,6 @@ const Controls: React.FC<FormProps> = ({
                   memoryFormat: e.target.value as TextFormat,
                 })
               }
-              defaultValue={TextFormat.Decimal}
               style={{ width: "100%" }}
             >
               <MenuItem value={TextFormat.Ascii}>Ascii</MenuItem>
@@ -123,7 +90,6 @@ const Controls: React.FC<FormProps> = ({
                   outputFormat: e.target.value as TextFormat,
                 })
               }
-              defaultValue={TextFormat.Ascii}
               style={{ width: "100%" }}
             >
               <MenuItem value={TextFormat.Ascii}>Ascii</MenuItem>

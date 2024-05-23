@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { BfEngine } from './engine/engine';
 import BfEditor from './monaco-editor/Editor';
-import Controls, { FormProps } from './controls/Controls';
+import Controls from './controls/Controls';
 import * as monaco from 'monaco-editor';
 import { Allotment } from 'allotment';
+import { FormProps, TextFormat } from './types';
 
 function App() {
   const [controlsState, setControlsState] = useState<FormProps['state']>({
@@ -11,6 +12,8 @@ function App() {
     memory: [],
     output: [],
     disableStepBack: true,
+    memoryFormat: TextFormat.Decimal,
+    outputFormat: TextFormat.Ascii
   });
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>(null);
   const engineRef = useRef<BfEngine | null>(null);
@@ -28,6 +31,8 @@ function App() {
       memory: engineRef.current!.getMemory(),
       output: engineRef.current!.getStdout(),
       disableStepBack: !engineRef.current!.getStepCount(),
+      memoryFormat: controlsState.memoryFormat,
+      outputFormat: controlsState.outputFormat
     });
   }
   
