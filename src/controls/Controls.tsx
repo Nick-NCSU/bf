@@ -6,27 +6,24 @@ import {
   Select,
   MenuItem,
   Grid,
-} from "@mui/material";
-import { FormProps, TextFormat } from "../types";
+} from '@mui/material';
+import { FormProps, TextFormat } from '../types';
 
 const formatText = (text: number[], format?: TextFormat) => {
   switch (format) {
     case TextFormat.Ascii:
-      return text.map((cell) => String.fromCharCode(cell)).join("");
+      return text.map((cell) => String.fromCharCode(cell)).join('');
     case TextFormat.Hexadecimal:
-      return text.map((cell) => cell.toString(16)).join(" ");
+      return text.map((cell) => cell.toString(16)).join(' ');
     case TextFormat.Decimal:
-      return text.join(" ");
+      return text.join(' ');
   }
 };
 
 const Controls: React.FC<FormProps> = ({
-  state: { disableStepBack, memory, output, stdin, memoryFormat, outputFormat },
+  state: { memory, output, stdin, memoryFormat, outputFormat },
   state,
   setState,
-  handleRun,
-  handleStepForward,
-  handleStepBackward,
 }) => {
   return (
     <form>
@@ -47,7 +44,7 @@ const Controls: React.FC<FormProps> = ({
               readOnly
               minRows={3}
               maxRows={5}
-              style={{ width: "100%" }}
+              style={{ width: '100%' }}
             />
           </Grid>
           <Grid item xs={2}>
@@ -59,7 +56,7 @@ const Controls: React.FC<FormProps> = ({
                   memoryFormat: e.target.value as TextFormat,
                 })
               }
-              style={{ width: "100%" }}
+              style={{ width: '100%' }}
             >
               <MenuItem value={TextFormat.Ascii}>Ascii</MenuItem>
               <MenuItem value={TextFormat.Hexadecimal}>Hex</MenuItem>
@@ -78,7 +75,7 @@ const Controls: React.FC<FormProps> = ({
               readOnly
               minRows={3}
               maxRows={5}
-              style={{ width: "100%" }}
+              style={{ width: '100%' }}
             />
           </Grid>
           <Grid item xs={2}>
@@ -90,7 +87,7 @@ const Controls: React.FC<FormProps> = ({
                   outputFormat: e.target.value as TextFormat,
                 })
               }
-              style={{ width: "100%" }}
+              style={{ width: '100%' }}
             >
               <MenuItem value={TextFormat.Ascii}>Ascii</MenuItem>
               <MenuItem value={TextFormat.Hexadecimal}>Hex</MenuItem>
@@ -99,22 +96,6 @@ const Controls: React.FC<FormProps> = ({
           </Grid>
         </Grid>
       </FormControl>
-
-      <div className="button-container">
-        <Button
-          variant="contained"
-          onClick={handleStepBackward}
-          disabled={disableStepBack}
-        >
-          Step Backward
-        </Button>
-        <Button variant="contained" onClick={handleStepForward}>
-          Step Forward
-        </Button>
-        <Button variant="contained" onClick={handleRun}>
-          Run
-        </Button>
-      </div>
     </form>
   );
 };

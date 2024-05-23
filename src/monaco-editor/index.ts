@@ -1,4 +1,4 @@
-import { editor, languages } from "monaco-editor";
+import { editor, languages } from 'monaco-editor';
 
 editor.setTheme('vs-dark');
 
@@ -6,9 +6,7 @@ languages.register({ id: 'bf' });
 
 languages.setMonarchTokensProvider('bf', {
   defaultToken: 'comment',
-  brackets: [
-    { open: '[', close: ']', token: 'brackets' }
-  ],
+  brackets: [{ open: '[', close: ']', token: 'brackets' }],
   tokenizer: {
     root: [
       [/[+-]/, 'operators'],
@@ -41,4 +39,3 @@ editor.defineTheme('bf-theme', {
     { token: 'output', foreground: 'ca5557' },
   ],
 });
-// ####

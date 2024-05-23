@@ -1,3 +1,5 @@
+import { EofBehavior, MemoryBits } from '../types';
+
 export class BfEngine {
   private addressPointer: number = 0;
   private programCounter: number = 0;
@@ -6,35 +8,49 @@ export class BfEngine {
 
   private minMemoryIdx: number = 0;
   private maxMemoryIdx: number = 0;
+  private maxMemoryValue: number = 255;
   private memory: { [memoryIdx: number]: number } = {};
 
   private instructions: string;
   private stdin: string;
+  private eofBehavior: EofBehavior;
   private jumpMap: { [programCounter: number]: number } = {};
   private jumpHistory: { [programCounter: number]: number } = {};
   private stdinHistory: { [programCounter: number]: number } = {};
 
-  private debug: boolean;
-  private breakpoint: string;
+  private saveHistory: boolean;
+  private breakpoint: string | undefined;
 
   constructor(params: {
     stdin: string;
     instructions: string;
-    debug: boolean;
-    breakpoint: string;
+    saveHistory: boolean;
+    breakpoint?: string;
+    eofBehavior: EofBehavior;
+    maxMemoryBits: MemoryBits;
   }) {
-    const escapedBreakpoint = params.breakpoint.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const regexPattern = new RegExp(`[^<>+\\-\\[\\].,${escapedBreakpoint}]`, 'g');
-    this.instructions = params.instructions.replace(regexPattern, "");
+    const escapedBreakpoint =
+      params.breakpoint?.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') || '';
+    const regexPattern = new RegExp(
+      `[^<>+\\-\\[\\].,${escapedBreakpoint}]`,
+      'g'
+    );
+    this.instructions = params.instructions.replace(regexPattern, '');
     this.stdin = params.stdin;
-    this.debug = params.debug;
+    this.saveHistory = params.saveHistory;
     this.breakpoint = params.breakpoint;
+    this.eofBehavior = params.eofBehavior;
+    this.maxMemoryValue =
+      params.maxMemoryBits === MemoryBits.EightBit ? 2 ** 8 - 1 : 2 ** 32 - 1;
     this.loadJumps();
   }
 
   public run() {
     while (this.programCounter < this.instructions.length) {
-      if(this.debug && this.instructions[this.programCounter] === this.breakpoint) {
+      if (
+        this.breakpoint &&
+        this.instructions[this.programCounter] === this.breakpoint
+      ) {
         this.step();
         return;
       }
@@ -42,87 +58,9 @@ export class BfEngine {
     }
   }
 
-  /**
-   * Step Forward
-   */
-  public step() {
-    if(this.programCounter >= this.instructions.length) {
-      return;
-    }
-    const instruction = this.instructions[this.programCounter];
-    switch(instruction) {
-      case "<":
-        this.movePointerLeft();
-        break;
-      case ">":
-        this.movePointerRight();
-        break;
-      case "+":
-        this.incrementValue();
-        break;
-      case "-":
-        this.decrementValue();
-        break;
-      case "[":
-        this.jumpForward();
-        break;
-      case "]":
-        this.jumpBackward();
-        break;
-      case ".":
-        this.writeValue();
-        break;
-      case ",":
-        this.readValue();
-        break;
-      case this.breakpoint:
-        break;
-      default:
-        throw new Error(`Invalid instruction: ${instruction}`);
-    }
-    this.programCounter++;
-    this.stepCount++;
-  }
-
-  /**
-   * Step back
-   */
-  public stepBack() {
-    if(this.stepCount === 0) {
-      return;
-    }
-    this.programCounter--;
-    this.stepCount--;
-    const instruction = this.instructions[this.programCounter];
-    switch(instruction) {
-      case "<":
-        this.movePointerRight();
-        break;
-      case ">":
-        this.movePointerLeft();
-        break;
-      case "+":
-        this.decrementValue();
-        break;
-      case "-":
-        this.incrementValue();
-        break;
-      case "[":
-      case "]":
-        this.unjump();
-        break;
-      case ".":
-        this.unwriteValue();
-        break;
-      case ",":
-        this.unreadValue();
-        break;
-    }
-  }
-
   public getMemory() {
     const memory: number[] = [];
-    for(let i = this.minMemoryIdx; i <= this.maxMemoryIdx; i++) {
+    for (let i = this.minMemoryIdx; i <= this.maxMemoryIdx; i++) {
       memory.push(this.memory[i] ?? 0);
     }
     return memory;
@@ -148,10 +86,10 @@ export class BfEngine {
     const stack: number[] = [];
     for (let i = 0; i < this.instructions.length; i++) {
       const instruction = this.instructions[i];
-      if (instruction === "[") {
+      if (instruction === '[') {
         stack.push(i);
-      } else if (instruction === "]") {
-        if(!stack.length) {
+      } else if (instruction === ']') {
+        if (!stack.length) {
           throw new Error(`Unmatched closing bracket at index ${i}`);
         }
         const openBracketIdx = stack.pop()!;
@@ -162,6 +100,48 @@ export class BfEngine {
     if (stack.length) {
       throw new Error(`Unmatched opening bracket at index ${stack.pop()}`);
     }
+  }
+
+  /**
+   * Step Forward
+   */
+  public step() {
+    if (this.programCounter >= this.instructions.length) {
+      return;
+    }
+    const instruction = this.instructions[this.programCounter];
+    switch (instruction) {
+      case '<':
+        this.movePointerLeft();
+        break;
+      case '>':
+        this.movePointerRight();
+        break;
+      case '+':
+        this.incrementValue();
+        break;
+      case '-':
+        this.decrementValue();
+        break;
+      case '[':
+        this.jumpForward();
+        break;
+      case ']':
+        this.jumpBackward();
+        break;
+      case '.':
+        this.writeValue();
+        break;
+      case ',':
+        this.readValue();
+        break;
+      case this.breakpoint:
+        break;
+      default:
+        throw new Error(`Invalid instruction: ${instruction}`);
+    }
+    this.programCounter++;
+    this.stepCount++;
   }
 
   private movePointerLeft() {
@@ -179,11 +159,11 @@ export class BfEngine {
   }
 
   private incrementValue() {
-    switch(this.memory[this.addressPointer]) {
+    switch (this.memory[this.addressPointer]) {
       case undefined:
         this.memory[this.addressPointer] = 1;
         break;
-      case 255:
+      case this.maxMemoryValue:
         this.memory[this.addressPointer] = 0;
         break;
       default:
@@ -192,12 +172,10 @@ export class BfEngine {
   }
 
   private decrementValue() {
-    switch(this.memory[this.addressPointer]) {
+    switch (this.memory[this.addressPointer]) {
       case undefined:
-        this.memory[this.addressPointer] = 255;
-        break;
       case 0:
-        this.memory[this.addressPointer] = 255;
+        this.memory[this.addressPointer] = this.maxMemoryValue;
         break;
       default:
         this.memory[this.addressPointer]--;
@@ -218,36 +196,84 @@ export class BfEngine {
     }
   }
 
-  private unjump() {
-    if(this.jumpHistory[this.stepCount] !== undefined) {
-      this.programCounter = this.jumpHistory[this.stepCount];
-      delete this.jumpHistory[this.stepCount];
+  private writeValue() {
+    this.stdout.push(this.memory[this.addressPointer]);
+  }
+
+  private readValue() {
+    const c = this.stdin[0];
+    if (c !== undefined) {
+      this.stdin = this.stdin.slice(1);
+      this.stdinHistory[this.stepCount] = this.memory[this.addressPointer] ?? 0;
+      this.memory[this.addressPointer] = c.charCodeAt(0);
+    } else {
+      this.stdinHistory[this.stepCount] = this.memory[this.addressPointer] ?? 0;
+      switch (this.eofBehavior) {
+        case EofBehavior.LeaveUnchanged:
+          break;
+        case EofBehavior.SetToMinusOne:
+          this.memory[this.addressPointer] = this.maxMemoryValue;
+          break;
+        case EofBehavior.SetToZero:
+          this.memory[this.addressPointer] = 0;
+          break;
+      }
+    }
+  }
+  /**
+   * Step back
+   */
+  public stepBack() {
+    if (!this.saveHistory) {
+      throw new Error('History is not being saved. Unable to step back.');
+    }
+    if (this.stepCount === 0) {
+      return;
+    }
+    this.programCounter--;
+    this.stepCount--;
+    const instruction = this.instructions[this.programCounter];
+    switch (instruction) {
+      case '<':
+        this.movePointerRight();
+        break;
+      case '>':
+        this.movePointerLeft();
+        break;
+      case '+':
+        this.decrementValue();
+        break;
+      case '-':
+        this.incrementValue();
+        break;
+      case '[':
+      case ']':
+        this.unjump();
+        break;
+      case '.':
+        this.unwriteValue();
+        break;
+      case ',':
+        this.unreadValue();
+        break;
     }
   }
 
-  private writeValue() {
-    this.stdout.push(this.memory[this.addressPointer]);
+  private unjump() {
+    if (this.jumpHistory[this.stepCount] !== undefined) {
+      this.programCounter = this.jumpHistory[this.stepCount];
+      delete this.jumpHistory[this.stepCount];
+    }
   }
 
   private unwriteValue() {
     this.stdout = this.stdout.slice(0, -1);
   }
 
-  private readValue() {
-    const c = this.stdin[0];
-    if(c !== undefined) {
-      this.stdin = this.stdin.slice(1);
-      this.stdinHistory[this.stepCount] = this.memory[this.addressPointer] ?? 0;
-      this.memory[this.addressPointer] = c.charCodeAt(0);
-    } else {
-      this.stdinHistory[this.stepCount] = this.memory[this.addressPointer] ?? 0;
-      this.memory[this.addressPointer] = 0;
-    }
-  }
-
   private unreadValue() {
-    if(this.stdinHistory[this.stepCount] !== undefined) {
-      this.stdin = String.fromCharCode(this.memory[this.addressPointer]) + this.stdin;
+    if (this.stdinHistory[this.stepCount] !== undefined) {
+      this.stdin =
+        String.fromCharCode(this.memory[this.addressPointer]) + this.stdin;
       this.memory[this.addressPointer] = this.stdinHistory[this.stepCount];
       delete this.stdinHistory[this.stepCount];
     }

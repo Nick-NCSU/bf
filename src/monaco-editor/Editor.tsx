@@ -5,18 +5,20 @@ import { setRef } from '@mui/material';
 const BfEditor = (props: {
   editorRef?: RefObject<monaco.editor.IStandaloneCodeEditor>;
 }) => {
-  const [_editor, setEditor] = React.useState<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const [_editor, setEditor] =
+    React.useState<monaco.editor.IStandaloneCodeEditor | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if(editorRef.current) {
+    if (editorRef.current) {
       setEditor((editor) => {
-        if(editor) {
+        if (editor) {
           return editor;
         }
 
         const newEditor = monaco.editor.create(editorRef.current!, {
-          value: '++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.',
+          value:
+            '++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.',
           language: 'bf',
           theme: 'bf-theme',
           automaticLayout: true,
@@ -26,7 +28,7 @@ const BfEditor = (props: {
           wordWrap: 'on',
         });
 
-        if(props.editorRef) {
+        if (props.editorRef) {
           setRef(props.editorRef, newEditor);
         }
 
@@ -35,9 +37,7 @@ const BfEditor = (props: {
     }
   }, [editorRef.current]);
 
-  return (
-    <div ref={editorRef} style={{ height: '50vh' }}></div>
-  );
+  return <div ref={editorRef} style={{ height: '50vh' }}></div>;
 };
 
 export default BfEditor;

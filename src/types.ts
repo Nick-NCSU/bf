@@ -17,14 +17,29 @@ export interface FormProps {
       outputFormat: TextFormat;
     }>
   >;
-
-  handleRun: () => void;
-  handleStepForward: () => void;
-  handleStepBackward: () => void;
 }
 
 export enum TextFormat {
   Ascii,
   Hexadecimal,
   Decimal,
+}
+
+export enum MemoryBits {
+  EightBit = 8,
+  ThirtyTwoBit = 32,
+}
+
+export enum EofBehavior {
+  SetToZero = 0,
+  LeaveUnchanged = 1,
+  SetToMinusOne = -1,
+}
+
+export interface Settings {
+  enableBreakpoints: boolean;
+  breakpointChar: string;
+  saveHistory: boolean;
+  memoryBits: MemoryBits;
+  eofBehavior: EofBehavior;
 }
