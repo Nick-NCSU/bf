@@ -1,24 +1,61 @@
 import { EofBehavior, MemoryBits } from '../types';
 
 export class BfEngine {
+  // Pointer to the index in memory which is currently selected
   private addressPointer: number = 0;
+  // Index in the instruction set which is currently being ran
   private programCounter: number = 0;
+  // Number of steps performed since the program started
   private stepCount: number = 0;
+
   private stdout: number[] = [];
 
+  // Left-most points in memory. Used to track memory size.
   private minMemoryIdx: number = 0;
+  // Right-most points in memory. Used to track memory size.
   private maxMemoryIdx: number = 0;
-  private maxMemoryValue: number = 255;
+
+  // Maximum value for a single memory cell. Numbers will overflow/underflow from this value.
+  private maxMemoryValue: number;
+
   private memory: { [memoryIdx: number]: number } = {};
 
   private instructions: string;
   private stdin: string;
+  /**
+   * Behavior to take when encountering EOF.
+   * More details: https://esolangs.org/wiki/Brainfuck#EOF
+   */
   private eofBehavior: EofBehavior;
+  /**
+   * Stores a map of where to jump to/from in memory
+   * to prevent calculating it at runtime.
+   */
   private jumpMap: { [programCounter: number]: number } = {};
-  private jumpHistory: { [programCounter: number]: number } = {};
-  private stdinHistory: { [programCounter: number]: number } = {};
+  /**
+   * History of jumps performed. This value is used when
+   * stepping backwards. 
+   * 
+   * This data will not be collected if saveHistory is `false`.
+   */
+  private jumpHistory: { [stepCount: number]: number } = {};
+  /**
+   * History of jumps performed. This value is used when
+   * stepping backwards. 
+   * 
+   * This data will not be collected if saveHistory is false
+   */
+  private stdinHistory: { [stepCount: number]: number } = {};
 
+  /**
+   * Determines whether to collect the `jumpHistory` and
+   * `stdinHistory` data. In programs with many jumps
+   * disabling this may improve performance.
+   */
   private saveHistory: boolean;
+  /**
+   * Breakpoint to pause execution on.
+   */
   private breakpoint: string | undefined;
 
   constructor(params: {
@@ -35,6 +72,7 @@ export class BfEngine {
       `[^<>+\\-\\[\\].,${escapedBreakpoint}]`,
       'g'
     );
+    // All characters other than `><+-.,[]` and the breakpoint will be ignored.
     this.instructions = params.instructions.replace(regexPattern, '');
     this.stdin = params.stdin;
     this.saveHistory = params.saveHistory;
@@ -197,7 +235,7 @@ export class BfEngine {
   }
 
   private writeValue() {
-    this.stdout.push(this.memory[this.addressPointer]);
+    this.stdout.push(this.memory[this.addressPointer] ?? 0);
   }
 
   private readValue() {
