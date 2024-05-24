@@ -48,7 +48,7 @@ function loadTestFile(filename: string) {
 
 /**
  * Contains tests to ensure engine works.
- * 
+ *
  * Input/outputs from various sources will be used
  * to ensure engine implementation matches spec.
  */
@@ -112,7 +112,8 @@ describe('BfEngine', () => {
     testEngine(
       {
         instructions: loadTestFile('replace'),
-        stdin: 'e*Example String to show the letter e replaced with the symbol *',
+        stdin:
+          'e*Example String to show the letter e replaced with the symbol *',
       },
       'Exampl* String to show th* l*tt*r * r*plac*d with th* symbol *'
     );
@@ -145,26 +146,28 @@ describe('BfEngine', () => {
     );
   });
 
-    // https://www.codewars.com/kata/596f80b5f468ae8daa000013
-    test('should print characters 0-255', () => {
+  // https://www.codewars.com/kata/596f80b5f468ae8daa000013
+  test('should print characters 0-255', () => {
+    testEngine(
+      {
+        instructions: '.+[.+]',
+      },
+      Array.from(new Array(256)).map((_n, idx) => idx)
+    );
+  });
+
+  // https://www.codewars.com/kata/59a96d71dbe3b06c0200009c
+  test('should print a square', () => {
+    for (let i = 1; i < 50; i++) {
       testEngine(
         {
-          instructions: '.+[.+]',
+          instructions: loadTestFile('square'),
+          stdin: String.fromCharCode(i),
         },
-        Array.from(new Array(256)).map((_n, idx) => idx)
+        Array.from(new Array(i))
+          .map((_n) => '+'.repeat(i))
+          .join('\n')
       );
-    });
-
-    // https://www.codewars.com/kata/59a96d71dbe3b06c0200009c
-    test('should print a square', () => {
-      for(let i = 1; i < 50; i++) {
-        testEngine(
-          {
-            instructions: loadTestFile('square'),
-            stdin: String.fromCharCode(i)
-          },
-          Array.from(new Array(i)).map(_n => '+'.repeat(i)).join('\n')
-        );
-      }
-    });
+    }
+  });
 });

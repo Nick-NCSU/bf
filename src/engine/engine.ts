@@ -34,15 +34,15 @@ export class BfEngine {
   private jumpMap: { [programCounter: number]: number } = {};
   /**
    * History of jumps performed. This value is used when
-   * stepping backwards. 
-   * 
+   * stepping backwards.
+   *
    * This data will not be collected if saveHistory is `false`.
    */
   private jumpHistory: { [stepCount: number]: number } = {};
   /**
    * History of jumps performed. This value is used when
-   * stepping backwards. 
-   * 
+   * stepping backwards.
+   *
    * This data will not be collected if saveHistory is false
    */
   private stdinHistory: { [stepCount: number]: number } = {};
@@ -222,14 +222,18 @@ export class BfEngine {
 
   private jumpForward() {
     if (!this.memory[this.addressPointer]) {
-      this.jumpHistory[this.stepCount] = this.programCounter;
+      if (this.saveHistory) {
+        this.jumpHistory[this.stepCount] = this.programCounter;
+      }
       this.programCounter = this.jumpMap[this.programCounter];
     }
   }
 
   private jumpBackward() {
     if (this.memory[this.addressPointer]) {
-      this.jumpHistory[this.stepCount] = this.programCounter;
+      if (this.saveHistory) {
+        this.jumpHistory[this.stepCount] = this.programCounter;
+      }
       this.programCounter = this.jumpMap[this.programCounter];
     }
   }
@@ -242,10 +246,16 @@ export class BfEngine {
     const c = this.stdin[0];
     if (c !== undefined) {
       this.stdin = this.stdin.slice(1);
-      this.stdinHistory[this.stepCount] = this.memory[this.addressPointer] ?? 0;
+      if (this.saveHistory) {
+        this.stdinHistory[this.stepCount] =
+          this.memory[this.addressPointer] ?? 0;
+      }
       this.memory[this.addressPointer] = c.charCodeAt(0);
     } else {
-      this.stdinHistory[this.stepCount] = this.memory[this.addressPointer] ?? 0;
+      if (this.saveHistory) {
+        this.stdinHistory[this.stepCount] =
+          this.memory[this.addressPointer] ?? 0;
+      }
       switch (this.eofBehavior) {
         case EofBehavior.LeaveUnchanged:
           break;

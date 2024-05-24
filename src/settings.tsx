@@ -73,7 +73,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
             type="radio"
             name="memoryBits"
             value={MemoryBits.EightBit}
-            checked={settings.memoryBits === MemoryBits.EightBit}
+            checked={+settings.memoryBits === MemoryBits.EightBit}
             onChange={handleInputChange}
           />
           8 Bit Memory
@@ -83,7 +83,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
             type="radio"
             name="memoryBits"
             value={MemoryBits.ThirtyTwoBit}
-            checked={settings.memoryBits === MemoryBits.ThirtyTwoBit}
+            checked={+settings.memoryBits === MemoryBits.ThirtyTwoBit}
             onChange={handleInputChange}
           />
           32 Bit Memory
