@@ -10,7 +10,7 @@ languages.setMonarchTokensProvider('bf', {
   tokenizer: {
     root: [
       [/[+-]/, 'operators'],
-      [/[\[\]]/, 'brackets'],
+      [/[[]]/, 'brackets'],
       [/[<>]/, 'pointers'],
       [/[,]/, 'input'],
       [/[.]/, 'output'],
