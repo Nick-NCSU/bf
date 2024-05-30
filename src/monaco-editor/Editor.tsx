@@ -37,7 +37,7 @@ const BfEditor = (props: {
     }
   }, [editorRef.current]);
 
-  return <div ref={editorRef} style={{ height: '50vh' }}></div>;
+  return <div ref={editorRef} style={{ height: '95vh' }} />;
 };
 
 export default BfEditor;
