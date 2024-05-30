@@ -1,5 +1,6 @@
 import React from 'react';
-import { MemoryBits, EofBehavior, Settings } from './types';
+import { MemoryBits, EofBehavior, Settings } from '../types';
+import './styles.css';
 
 interface SettingsDialogProps {
   isOpen: boolean;

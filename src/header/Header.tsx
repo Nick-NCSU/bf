@@ -4,6 +4,7 @@ import {
   SkipPrevious,
   SettingsApplications,
 } from '@mui/icons-material';
+import './styles.css';
 
 interface HeaderProps {
   isStepBackwardEnabled: boolean;

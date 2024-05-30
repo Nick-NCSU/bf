@@ -5,21 +5,22 @@ import Controls from './controls/Controls';
 import * as monaco from 'monaco-editor';
 import { Allotment } from 'allotment';
 import {
-  FormProps,
+  ControlsProps,
   TextFormat,
   MemoryBits,
   EofBehavior,
   Settings,
 } from './types';
-import Header from './header';
-import SettingsDialog from './settings';
+import Header from './header/Header';
+import SettingsDialog from './settings/Settings';
 
 function App() {
-  const [controlsState, setControlsState] = useState<FormProps['state']>({
+  const [controlsState, setControlsState] = useState<ControlsProps['state']>({
     stdin: '',
     memory: [],
     output: [],
     disableStepBack: true,
+    selectedMemoryIdx: 0,
     memoryFormat: TextFormat.Decimal,
     outputFormat: TextFormat.Ascii,
   });
@@ -47,6 +48,7 @@ function App() {
       memory: engineRef.current!.getMemory(),
       output: engineRef.current!.getStdout(),
       disableStepBack: !engineRef.current!.getStepCount(),
+      selectedMemoryIdx: engineRef.current!.getAddressPointer(),
       memoryFormat: controlsState.memoryFormat,
       outputFormat: controlsState.outputFormat,
     });

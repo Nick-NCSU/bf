@@ -6,21 +6,13 @@ import {
   MenuItem,
   Grid,
 } from '@mui/material';
-import { FormProps, TextFormat } from '../types';
+import { ControlsProps, TextFormat } from '../types';
+import { formatText } from './utils';
+import MemoryVisualizer from './Memory';
+import './styles.css';
 
-const formatText = (text: number[], format?: TextFormat) => {
-  switch (format) {
-    case TextFormat.Ascii:
-      return text.map((cell) => String.fromCharCode(cell)).join('');
-    case TextFormat.Hexadecimal:
-      return text.map((cell) => cell.toString(16)).join(' ');
-    case TextFormat.Decimal:
-      return text.join(' ');
-  }
-};
-
-const Controls: React.FC<FormProps> = ({
-  state: { memory, output, stdin, memoryFormat, outputFormat },
+const Controls: React.FC<ControlsProps> = ({
+  state: { output, stdin, outputFormat },
   state,
   setState,
 }) => {
@@ -34,46 +26,20 @@ const Controls: React.FC<FormProps> = ({
         onChange={(e) => setState({ ...state, stdin: e.target.value })}
       />
 
-      <FormControl fullWidth>
-        <Grid container alignItems="center" spacing={2}>
-          <Grid item xs={10}>
-            <TextareaAutosize
-              id="memory"
-              value={formatText(memory, memoryFormat)}
-              readOnly
-              minRows={3}
-              maxRows={5}
-              style={{ width: '100%' }}
-            />
-          </Grid>
-          <Grid item xs={2}>
-            <Select
-              value={memoryFormat}
-              onChange={(e) =>
-                setState({
-                  ...state,
-                  memoryFormat: e.target.value as TextFormat,
-                })
-              }
-              style={{ width: '100%' }}
-            >
-              <MenuItem value={TextFormat.Ascii}>Ascii</MenuItem>
-              <MenuItem value={TextFormat.Hexadecimal}>Hex</MenuItem>
-              <MenuItem value={TextFormat.Decimal}>Decimal</MenuItem>
-            </Select>
-          </Grid>
-        </Grid>
-      </FormControl>
+      <MemoryVisualizer
+        setState={setState}
+        state={state}
+      />
 
       <FormControl fullWidth>
         <Grid container alignItems="center" spacing={2}>
           <Grid item xs={10}>
             <TextareaAutosize
               id="output"
+              placeholder='Output'
               value={formatText(output, outputFormat)}
               readOnly
               minRows={3}
-              maxRows={5}
               style={{ width: '100%' }}
             />
           </Grid>
