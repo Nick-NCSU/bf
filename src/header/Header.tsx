@@ -8,7 +8,7 @@ import {
 import './styles.css';
 
 interface HeaderProps {
-  isStepBackwardEnabled: boolean;
+  isStepBackwardDisabled: boolean;
   handleContinue: () => void;
   handleReset: () => void;
   handleStepForward: () => void;
@@ -17,7 +17,7 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({
-  isStepBackwardEnabled,
+  isStepBackwardDisabled,
   handleReset,
   handleContinue,
   handleStepForward,
@@ -29,7 +29,7 @@ const Header: React.FC<HeaderProps> = ({
       <button onClick={handleReset}>
         <RestartAlt />
       </button>
-      <button onClick={handleStepBackward} disabled={!isStepBackwardEnabled}>
+      <button onClick={handleStepBackward} disabled={isStepBackwardDisabled}>
         <SkipPrevious />
       </button>
       <button onClick={handleContinue}>

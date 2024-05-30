@@ -38,6 +38,9 @@ function App() {
   const [currentDecorations, setCurrentDecorations] = useState<
     monaco.editor.IEditorDecorationsCollection | undefined
   >();
+  const [hasChangedSinceLastRun, setHasChangedSinceLastRun] =
+    useState<boolean>(false);
+  const onDidChangeContent = () => setHasChangedSinceLastRun(true);
 
   useEffect(() => {
     if (engineRef.current) {
@@ -57,15 +60,19 @@ function App() {
   };
 
   const updateValues = () => {
+    setHasChangedSinceLastRun(false);
     setControlsState({
-      stdin: controlsState.stdin,
-      memory: engineRef.current!.getMemory(),
-      output: engineRef.current!.getStdout(),
-      disableStepBack: !engineRef.current!.getStepCount(),
-      selectedMemoryIdx: engineRef.current!.getAddressPointer(),
-      memoryFormat: controlsState.memoryFormat,
-      outputFormat: controlsState.outputFormat,
+      ...controlsState,
+      memory: engineRef.current?.getMemory() ?? [],
+      output: engineRef.current?.getStdout() ?? [],
+      disableStepBack: !engineRef.current?.getStepCount(),
+      selectedMemoryIdx: engineRef.current?.getAddressPointer() ?? 0,
     });
+
+    if (!engineRef.current) {
+      return;
+    }
+
     const model = editorRef.current?.getModel()!;
     const pos = model.getPositionAt(engineRef.current!.getProgramCounter());
     currentDecorations?.clear();
@@ -93,7 +100,7 @@ function App() {
   };
 
   const handleContinue = () => {
-    if (!engineRef.current) {
+    if (!engineRef.current || hasChangedSinceLastRun) {
       setNewEngine();
     }
     engineRef.current!.run();
@@ -101,7 +108,7 @@ function App() {
   };
 
   const handleStepForward = () => {
-    if (!engineRef.current) {
+    if (!engineRef.current || hasChangedSinceLastRun) {
       setNewEngine();
     }
     engineRef.current!.step();
@@ -118,11 +125,18 @@ function App() {
     <div className="App" style={{ height: '100vh' }}>
       <Allotment>
         <div className="editor-container">
-          <BfEditor editorRef={editorRef} />
+          <BfEditor
+            editorRef={editorRef}
+            onDidChangeContent={onDidChangeContent}
+          />
         </div>
         <div className="controls-container">
           <Header
-            isStepBackwardEnabled={settings.saveHistory}
+            isStepBackwardDisabled={
+              !settings.saveHistory ||
+              controlsState.disableStepBack ||
+              hasChangedSinceLastRun
+            }
             handleReset={handleReset}
             handleContinue={handleContinue}
             handleStepForward={handleStepForward}
