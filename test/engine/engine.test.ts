@@ -26,6 +26,11 @@ function testEngine(params: BfEngineParams, output: string | number[]) {
     expect(engine.getStdout()).toEqual(output);
   }
 
+  // Only check history if it is enabled
+  if (params.saveHistory === false) {
+    return;
+  }
+
   const stepCount = engine.getStepCount();
   const stepBackCount = Math.floor(Math.random() * stepCount);
   for (let i = 0; i < stepBackCount; i++) {
@@ -98,10 +103,60 @@ describe('BfEngine', () => {
   // https://esolangs.org/wiki/Brainfuck#Cat
   test('should output the stdin', () => {
     const randomString = randomUUID();
+    // Input should work if EOF sets to 0
+    const input1 = ',[.,]';
     testEngine(
       {
-        instructions: loadTestFile('cat'),
+        instructions: input1,
         stdin: randomString,
+      },
+      randomString
+    );
+
+    // Input should work if EOF sets to -1
+    const input2 = ',+[-.,+]';
+    testEngine(
+      {
+        instructions: input2,
+        stdin: randomString,
+        eofBehavior: EofBehavior.SetToMinusOne,
+      },
+      randomString
+    );
+
+    // Input should work if EOF is NOP or sets to 0
+    const input3 = ',[.[-],]';
+    testEngine(
+      {
+        instructions: input3,
+        stdin: randomString,
+      },
+      randomString
+    );
+    testEngine(
+      {
+        instructions: input3,
+        stdin: randomString,
+        eofBehavior: EofBehavior.LeaveUnchanged,
+      },
+      randomString
+    );
+
+    // Input should work if EOF is NOP or sets to -1
+    const input4 = ',+[-.[-]-,+]';
+    testEngine(
+      {
+        instructions: input4,
+        stdin: randomString,
+        eofBehavior: EofBehavior.LeaveUnchanged,
+      },
+      randomString
+    );
+    testEngine(
+      {
+        instructions: input4,
+        stdin: randomString,
+        eofBehavior: EofBehavior.SetToMinusOne,
       },
       randomString
     );
