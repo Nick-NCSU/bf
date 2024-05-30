@@ -3,11 +3,14 @@ import {
   SkipNext,
   SkipPrevious,
   SettingsApplications,
+  RestartAlt,
 } from '@mui/icons-material';
+import './styles.css';
 
 interface HeaderProps {
   isStepBackwardEnabled: boolean;
-  handleRun: () => void;
+  handleContinue: () => void;
+  handleReset: () => void;
   handleStepForward: () => void;
   handleStepBackward: () => void;
   openSettings: () => void;
@@ -15,17 +18,21 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({
   isStepBackwardEnabled,
-  handleRun,
+  handleReset,
+  handleContinue,
   handleStepForward,
   handleStepBackward,
   openSettings,
 }) => {
   return (
     <div className="header">
+      <button onClick={handleReset}>
+        <RestartAlt />
+      </button>
       <button onClick={handleStepBackward} disabled={!isStepBackwardEnabled}>
         <SkipPrevious />
       </button>
-      <button onClick={handleRun}>
+      <button onClick={handleContinue}>
         <PlayArrow />
       </button>
       <button onClick={handleStepForward}>

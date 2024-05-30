@@ -5,21 +5,22 @@ import Controls from './controls/Controls';
 import * as monaco from 'monaco-editor';
 import { Allotment } from 'allotment';
 import {
-  FormProps,
+  ControlsProps,
   TextFormat,
   MemoryBits,
   EofBehavior,
   Settings,
 } from './types';
-import Header from './header';
-import SettingsDialog from './settings';
+import Header from './header/Header';
+import SettingsDialog from './settings/Settings';
 
 function App() {
-  const [controlsState, setControlsState] = useState<FormProps['state']>({
+  const [controlsState, setControlsState] = useState<ControlsProps['state']>({
     stdin: '',
     memory: [],
     output: [],
     disableStepBack: true,
+    selectedMemoryIdx: 0,
     memoryFormat: TextFormat.Decimal,
     outputFormat: TextFormat.Ascii,
   });
@@ -34,6 +35,9 @@ function App() {
 
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>(null);
   const engineRef = useRef<BfEngine | null>(null);
+  const [currentDecorations, setCurrentDecorations] = useState<
+    monaco.editor.IEditorDecorationsCollection | undefined
+  >();
 
   useEffect(() => {
     if (engineRef.current) {
@@ -41,43 +45,66 @@ function App() {
     }
   }, [engineRef.current]);
 
-  const updateValues = () => {
-    setControlsState({
-      stdin: controlsState.stdin,
-      memory: engineRef.current!.getMemory(),
-      output: engineRef.current!.getStdout(),
-      disableStepBack: !engineRef.current!.getStepCount(),
-      memoryFormat: controlsState.memoryFormat,
-      outputFormat: controlsState.outputFormat,
-    });
-  };
-
-  const handleRun = () => {
-    const newEngine = new BfEngine({
+  const setNewEngine = () => {
+    return (engineRef.current = new BfEngine({
       instructions: editorRef.current?.getValue()!,
       stdin: controlsState.stdin,
       saveHistory: settings.saveHistory,
       breakpoint: settings.enableBreakpoints ? settings.breakpointChar : '',
       eofBehavior: settings.eofBehavior,
       maxMemoryBits: settings.memoryBits,
+    }));
+  };
+
+  const updateValues = () => {
+    setControlsState({
+      stdin: controlsState.stdin,
+      memory: engineRef.current!.getMemory(),
+      output: engineRef.current!.getStdout(),
+      disableStepBack: !engineRef.current!.getStepCount(),
+      selectedMemoryIdx: engineRef.current!.getAddressPointer(),
+      memoryFormat: controlsState.memoryFormat,
+      outputFormat: controlsState.outputFormat,
     });
-    newEngine.run();
-    engineRef.current = newEngine;
+    const model = editorRef.current?.getModel()!;
+    const pos = model.getPositionAt(engineRef.current!.getProgramCounter());
+    currentDecorations?.clear();
+    setCurrentDecorations(
+      editorRef.current?.createDecorationsCollection([
+        {
+          range: new monaco.Range(
+            pos.lineNumber,
+            pos.column - 1,
+            pos.lineNumber,
+            pos.column
+          ),
+          options: {
+            isWholeLine: false,
+            inlineClassName: 'highlight',
+          },
+        },
+      ])
+    );
+  };
+
+  const handleReset = () => {
+    setNewEngine().run();
+    updateValues();
+  };
+
+  const handleContinue = () => {
+    if (!engineRef.current) {
+      setNewEngine();
+    }
+    engineRef.current!.run();
     updateValues();
   };
 
   const handleStepForward = () => {
     if (!engineRef.current) {
-      engineRef.current = new BfEngine({
-        instructions: editorRef.current?.getValue()!,
-        stdin: controlsState.stdin,
-        saveHistory: settings.saveHistory,
-        breakpoint: settings.enableBreakpoints ? settings.breakpointChar : '',
-        eofBehavior: settings.eofBehavior,
-        maxMemoryBits: settings.memoryBits,
-      });
+      setNewEngine();
     }
-    engineRef.current.step();
+    engineRef.current!.step();
     updateValues();
   };
 
@@ -90,13 +117,14 @@ function App() {
   return (
     <div className="App" style={{ height: '100vh' }}>
       <Allotment>
-        <div className="editor-container" style={{ height: '100%' }}>
+        <div className="editor-container">
           <BfEditor editorRef={editorRef} />
         </div>
         <div className="controls-container">
           <Header
             isStepBackwardEnabled={settings.saveHistory}
-            handleRun={handleRun}
+            handleReset={handleReset}
+            handleContinue={handleContinue}
             handleStepForward={handleStepForward}
             handleStepBackward={handleStepBackward}
             openSettings={() => setIsSettingsOpen(true)}

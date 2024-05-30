@@ -1,9 +1,10 @@
-export interface FormProps {
+export interface ControlsProps {
   state: {
     stdin: string;
     memory: number[];
     output: number[];
     disableStepBack: boolean;
+    selectedMemoryIdx: number;
     memoryFormat: TextFormat;
     outputFormat: TextFormat;
   };
@@ -13,6 +14,7 @@ export interface FormProps {
       memory: number[];
       output: number[];
       disableStepBack: boolean;
+      selectedMemoryIdx: number;
       memoryFormat: TextFormat;
       outputFormat: TextFormat;
     }>
