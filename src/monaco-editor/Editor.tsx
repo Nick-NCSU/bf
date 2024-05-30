@@ -4,6 +4,7 @@ import { setRef } from '@mui/material';
 
 const BfEditor = (props: {
   editorRef?: RefObject<monaco.editor.IStandaloneCodeEditor>;
+  onDidChangeContent?: (e: monaco.editor.IModelContentChangedEvent) => void;
 }) => {
   const [_editor, setEditor] =
     React.useState<monaco.editor.IStandaloneCodeEditor | null>(null);
@@ -30,6 +31,10 @@ const BfEditor = (props: {
 
         if (props.editorRef) {
           setRef(props.editorRef, newEditor);
+        }
+
+        if (props.onDidChangeContent) {
+          newEditor.getModel()?.onDidChangeContent(props.onDidChangeContent);
         }
 
         return newEditor;
