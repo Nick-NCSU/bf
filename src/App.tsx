@@ -35,7 +35,9 @@ function App() {
 
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>(null);
   const engineRef = useRef<BfEngine | null>(null);
-  const [currentDecorations, setCurrentDecorations] = useState<monaco.editor.IEditorDecorationsCollection | undefined>();
+  const [currentDecorations, setCurrentDecorations] = useState<
+    monaco.editor.IEditorDecorationsCollection | undefined
+  >();
 
   useEffect(() => {
     if (engineRef.current) {
@@ -44,15 +46,15 @@ function App() {
   }, [engineRef.current]);
 
   const setNewEngine = () => {
-    return engineRef.current = new BfEngine({
+    return (engineRef.current = new BfEngine({
       instructions: editorRef.current?.getValue()!,
       stdin: controlsState.stdin,
       saveHistory: settings.saveHistory,
       breakpoint: settings.enableBreakpoints ? settings.breakpointChar : '',
       eofBehavior: settings.eofBehavior,
       maxMemoryBits: settings.memoryBits,
-    });
-  }
+    }));
+  };
 
   const updateValues = () => {
     setControlsState({
@@ -67,15 +69,22 @@ function App() {
     const model = editorRef.current?.getModel()!;
     const pos = model.getPositionAt(engineRef.current!.getProgramCounter());
     currentDecorations?.clear();
-    setCurrentDecorations(editorRef.current?.createDecorationsCollection([
-      {
-        range: new monaco.Range(pos.lineNumber, pos.column - 1, pos.lineNumber, pos.column),
-        options: {
-          isWholeLine: false,
-          inlineClassName: 'highlight'
-        }
-      }
-    ]))
+    setCurrentDecorations(
+      editorRef.current?.createDecorationsCollection([
+        {
+          range: new monaco.Range(
+            pos.lineNumber,
+            pos.column - 1,
+            pos.lineNumber,
+            pos.column
+          ),
+          options: {
+            isWholeLine: false,
+            inlineClassName: 'highlight',
+          },
+        },
+      ])
+    );
   };
 
   const handleReset = () => {

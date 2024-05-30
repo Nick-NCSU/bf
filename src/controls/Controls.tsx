@@ -37,10 +37,7 @@ const Controls: React.FC<ControlsProps> = ({
         <Typography variant="h6" gutterBottom>
           Memory
         </Typography>
-        <MemoryVisualizer
-          state={state}
-          setState={setState}
-        />
+        <MemoryVisualizer state={state} setState={setState} />
       </div>
 
       <div className="section output-section">

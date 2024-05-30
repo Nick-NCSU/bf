@@ -66,7 +66,7 @@ export class BfEngine {
     eofBehavior: EofBehavior;
     maxMemoryBits: MemoryBits;
   }) {
-    this.instructions = params.instructions
+    this.instructions = params.instructions;
     this.stdin = params.stdin;
     this.saveHistory = params.saveHistory;
     this.breakpoint = params.breakpoint;

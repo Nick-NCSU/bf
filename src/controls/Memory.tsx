@@ -1,8 +1,18 @@
-import { FormControl, Grid, Select, MenuItem, Typography, Box } from '@mui/material';
+import {
+  FormControl,
+  Grid,
+  Select,
+  MenuItem,
+  Typography,
+  Box,
+} from '@mui/material';
 import { ControlsProps, TextFormat } from '../types';
 import { formatText } from './utils';
 
-const MemoryVisualizer: React.FC<ControlsProps> = ({ state: { memory, selectedMemoryIdx, memoryFormat }, setState }) => {
+const MemoryVisualizer: React.FC<ControlsProps> = ({
+  state: { memory, selectedMemoryIdx, memoryFormat },
+  setState,
+}) => {
   return (
     <FormControl fullWidth>
       <Grid container alignItems="center" spacing={2}>
@@ -10,7 +20,9 @@ const MemoryVisualizer: React.FC<ControlsProps> = ({ state: { memory, selectedMe
           <Grid container className="memory-grid-container" spacing={0}>
             {memory.map((value, index) => (
               <Grid item key={index} className="memory-grid-item">
-                <Box className={`memory-box ${index === selectedMemoryIdx ? 'selected' : ''}`}>
+                <Box
+                  className={`memory-box ${index === selectedMemoryIdx ? 'selected' : ''}`}
+                >
                   <Typography className="memory-index" variant="body2">
                     {index}
                   </Typography>

@@ -1,4 +1,4 @@
-import { TextFormat } from "../types";
+import { TextFormat } from '../types';
 
 export const formatText = (text: number[], format?: TextFormat) => {
   switch (format) {
