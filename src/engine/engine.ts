@@ -66,14 +66,7 @@ export class BfEngine {
     eofBehavior: EofBehavior;
     maxMemoryBits: MemoryBits;
   }) {
-    const escapedBreakpoint =
-      params.breakpoint?.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') || '';
-    const regexPattern = new RegExp(
-      `[^<>+\\-\\[\\].,${escapedBreakpoint}]`,
-      'g'
-    );
-    // All characters other than `><+-.,[]` and the breakpoint will be ignored.
-    this.instructions = params.instructions.replace(regexPattern, '');
+    this.instructions = params.instructions
     this.stdin = params.stdin;
     this.saveHistory = params.saveHistory;
     this.breakpoint = params.breakpoint;
@@ -175,8 +168,6 @@ export class BfEngine {
         break;
       case this.breakpoint:
         break;
-      default:
-        throw new Error(`Invalid instruction: ${instruction}`);
     }
     this.programCounter++;
     this.stepCount++;

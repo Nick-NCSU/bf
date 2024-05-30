@@ -35,12 +35,24 @@ function App() {
 
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>(null);
   const engineRef = useRef<BfEngine | null>(null);
+  const [currentDecorations, setCurrentDecorations] = useState<monaco.editor.IEditorDecorationsCollection | undefined>();
 
   useEffect(() => {
     if (engineRef.current) {
       updateValues();
     }
   }, [engineRef.current]);
+
+  const setNewEngine = () => {
+    return engineRef.current = new BfEngine({
+      instructions: editorRef.current?.getValue()!,
+      stdin: controlsState.stdin,
+      saveHistory: settings.saveHistory,
+      breakpoint: settings.enableBreakpoints ? settings.breakpointChar : '',
+      eofBehavior: settings.eofBehavior,
+      maxMemoryBits: settings.memoryBits,
+    });
+  }
 
   const updateValues = () => {
     setControlsState({
@@ -52,34 +64,38 @@ function App() {
       memoryFormat: controlsState.memoryFormat,
       outputFormat: controlsState.outputFormat,
     });
+    const model = editorRef.current?.getModel()!;
+    const pos = model.getPositionAt(engineRef.current!.getProgramCounter());
+    currentDecorations?.clear();
+    setCurrentDecorations(editorRef.current?.createDecorationsCollection([
+      {
+        range: new monaco.Range(pos.lineNumber, pos.column - 1, pos.lineNumber, pos.column),
+        options: {
+          isWholeLine: false,
+          inlineClassName: 'highlight'
+        }
+      }
+    ]))
   };
 
-  const handleRun = () => {
-    const newEngine = new BfEngine({
-      instructions: editorRef.current?.getValue()!,
-      stdin: controlsState.stdin,
-      saveHistory: settings.saveHistory,
-      breakpoint: settings.enableBreakpoints ? settings.breakpointChar : '',
-      eofBehavior: settings.eofBehavior,
-      maxMemoryBits: settings.memoryBits,
-    });
-    newEngine.run();
-    engineRef.current = newEngine;
+  const handleReset = () => {
+    setNewEngine().run();
+    updateValues();
+  };
+
+  const handleContinue = () => {
+    if (!engineRef.current) {
+      setNewEngine();
+    }
+    engineRef.current!.run();
     updateValues();
   };
 
   const handleStepForward = () => {
     if (!engineRef.current) {
-      engineRef.current = new BfEngine({
-        instructions: editorRef.current?.getValue()!,
-        stdin: controlsState.stdin,
-        saveHistory: settings.saveHistory,
-        breakpoint: settings.enableBreakpoints ? settings.breakpointChar : '',
-        eofBehavior: settings.eofBehavior,
-        maxMemoryBits: settings.memoryBits,
-      });
+      setNewEngine();
     }
-    engineRef.current.step();
+    engineRef.current!.step();
     updateValues();
   };
 
@@ -98,7 +114,8 @@ function App() {
         <div className="controls-container">
           <Header
             isStepBackwardEnabled={settings.saveHistory}
-            handleRun={handleRun}
+            handleReset={handleReset}
+            handleContinue={handleContinue}
             handleStepForward={handleStepForward}
             handleStepBackward={handleStepBackward}
             openSettings={() => setIsSettingsOpen(true)}
