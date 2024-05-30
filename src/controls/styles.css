@@ -32,3 +32,31 @@
 .memory-value {
   margin-top: 2px;
 }
+
+.full-screen-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.section {
+  margin-bottom: 16px;
+}
+
+.input-section,
+.output-section {
+  flex: 0 0 auto;
+}
+
+.memory-visualizer-section {
+  flex: flex-grow;
+  overflow-y: auto;
+  margin-bottom: 16px;
+}
+
+textarea#output {
+  width: 100%;
+  box-sizing: border-box;
+}
