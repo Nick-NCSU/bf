@@ -122,7 +122,7 @@ function App() {
   };
 
   return (
-    <div className="App" style={{ height: '100vh' }}>
+    <div className="App" style={{ height: '95vh' }}>
       <Allotment>
         <div className="editor-container">
           <BfEditor
