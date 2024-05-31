@@ -20,7 +20,7 @@ const BfEditor = (props: {
         const newEditor = monaco.editor.create(editorRef.current!, {
           value:
             'Hello World\n' +
-            '++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.' +
+            '++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++' +
             '\n\nTo view source code or report issues visit https://github.com/Nick-NCSU/bf',
           language: 'bf',
           theme: 'bf-theme',
