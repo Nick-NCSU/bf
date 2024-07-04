@@ -13,6 +13,7 @@ import {
 } from './types';
 import Header from './header/Header';
 import SettingsDialog from './settings/Settings';
+import ReactGA from 'react-ga4';
 
 function App() {
   const [controlsState, setControlsState] = useState<ControlsProps['state']>({
@@ -120,6 +121,13 @@ function App() {
     engineRef.current.stepBack();
     updateValues();
   };
+
+  ReactGA.initialize('G-1E2WKQ764W');
+  ReactGA.send({
+    hitType: 'pageview',
+    page: '/bf',
+    title: 'BF',
+  });
 
   return (
     <div className="App" style={{ height: '95vh' }}>
