@@ -8,6 +8,7 @@ import {
   Box,
   Typography,
 } from '@mui/material';
+import { useState, useEffect, useRef } from 'react';
 import { ControlsProps, TextFormat } from '../types';
 import { formatText } from './utils';
 import MemoryVisualizer from './Memory';
@@ -18,6 +19,16 @@ const Controls: React.FC<ControlsProps> = ({
   state,
   setState,
 }) => {
+  const [textareaHeight, setTextareaHeight] = useState('100px');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      const scrollHeight = textareaRef.current.scrollHeight;
+      setTextareaHeight(`${Math.min(scrollHeight + 5, 300)}px`);
+    }
+  }, [output, outputFormat]);
+
   return (
     <div className="full-screen-container scrollable">
       <div className="section input-section">
@@ -63,22 +74,17 @@ const Controls: React.FC<ControlsProps> = ({
               </Select>
             </Grid>
             <Grid item>
-              <Box
-                sx={{
-                  height: '300px',
-                  overflow: 'auto',
-                  marginBottom: '100px',
-                }}
-              >
-                <TextareaAutosize
+              <Box sx={{ marginBottom: '4rem' }}>
+                <textarea
+                  ref={textareaRef}
                   id="output"
                   placeholder="Output"
                   value={formatText(output, outputFormat)}
                   readOnly
                   style={{
                     width: '100%',
-                    height: '100%',
-                    resize: 'vertical',
+                    height: textareaHeight,
+                    resize: 'none',
                     overflow: 'auto',
                   }}
                   className="output-textarea"
