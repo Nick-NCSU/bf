@@ -47,7 +47,7 @@ const Controls: React.FC<ControlsProps> = ({
         <Typography variant="h6" gutterBottom>
           Memory
         </Typography>
-        <div style={{ maxHeight: '16rem', overflowY: 'auto' }}>
+        <div style={{ maxHeight: '12.5rem', overflowY: 'auto' }}>
           <MemoryVisualizer state={state} setState={setState} />
         </div>
       </div>
