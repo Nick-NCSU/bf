@@ -20,61 +20,75 @@ const Controls: React.FC<ControlsProps> = ({
 }) => {
   return (
     <div className="full-screen-container">
-      <div className="section input-section">
-        <Typography variant="h6" gutterBottom>
-          Input
-        </Typography>
-        <TextField
-          label="Input"
-          variant="outlined"
-          fullWidth
-          value={stdin}
-          onChange={(e) => setState({ ...state, stdin: e.target.value })}
-        />
-      </div>
+      <Grid container direction="column" spacing={2} style={{ height: '100%' }}>
+        <Grid item>
+          <Typography variant="h6" gutterBottom>
+            Input
+          </Typography>
+          <TextField
+            label="Input"
+            variant="outlined"
+            fullWidth
+            value={stdin}
+            onChange={(e) => setState({ ...state, stdin: e.target.value })}
+          />
+        </Grid>
 
-      <div className="section memory-visualizer-section">
-        <Typography variant="h6" gutterBottom>
-          Memory
-        </Typography>
-        <MemoryVisualizer state={state} setState={setState} />
-      </div>
+        <Grid item>
+          <Typography variant="h6" gutterBottom>
+            Memory
+          </Typography>
+          <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+            <MemoryVisualizer state={state} setState={setState} />
+          </div>
+        </Grid>
 
-      <div className="section output-section">
-        <Typography variant="h6" gutterBottom>
-          Output
-        </Typography>
-        <FormControl fullWidth>
-          <Grid container alignItems="center" spacing={2}>
-            <Grid item xs={10}>
-              <TextareaAutosize
-                id="output"
-                placeholder="Output"
-                value={formatText(output, outputFormat)}
-                readOnly
-                minRows={3}
-                className="output-textarea"
-              />
+        <Grid item xs>
+          <Typography variant="h6" gutterBottom>
+            Output
+          </Typography>
+          <FormControl fullWidth style={{ height: '100%' }}>
+            <Grid
+              container
+              direction="column"
+              spacing={2}
+              style={{ height: '100%' }}
+            >
+              <Grid item>
+                <Select
+                  value={outputFormat}
+                  onChange={(e) =>
+                    setState({
+                      ...state,
+                      outputFormat: e.target.value as TextFormat,
+                    })
+                  }
+                  size="small"
+                >
+                  <MenuItem value={TextFormat.Ascii}>Ascii</MenuItem>
+                  <MenuItem value={TextFormat.Hexadecimal}>Hex</MenuItem>
+                  <MenuItem value={TextFormat.Decimal}>Decimal</MenuItem>
+                </Select>
+              </Grid>
+              <Grid item xs style={{ minHeight: 0 }}>
+                <TextareaAutosize
+                  id="output"
+                  placeholder="Output"
+                  value={formatText(output, outputFormat)}
+                  readOnly
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    resize: 'none',
+                    overflow: 'auto',
+                  }}
+                  className="output-textarea"
+                />
+              </Grid>
             </Grid>
-            <Grid item xs={2}>
-              <Select
-                value={outputFormat}
-                onChange={(e) =>
-                  setState({
-                    ...state,
-                    outputFormat: e.target.value as TextFormat,
-                  })
-                }
-                fullWidth
-              >
-                <MenuItem value={TextFormat.Ascii}>Ascii</MenuItem>
-                <MenuItem value={TextFormat.Hexadecimal}>Hex</MenuItem>
-                <MenuItem value={TextFormat.Decimal}>Decimal</MenuItem>
-              </Select>
-            </Grid>
-          </Grid>
-        </FormControl>
-      </div>
+          </FormControl>
+        </Grid>
+      </Grid>
     </div>
   );
 };

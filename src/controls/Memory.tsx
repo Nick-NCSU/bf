@@ -15,8 +15,24 @@ const MemoryVisualizer: React.FC<ControlsProps> = ({
 }) => {
   return (
     <FormControl fullWidth>
-      <Grid container alignItems="center" spacing={2}>
-        <Grid item xs={10}>
+      <Grid container direction="column" spacing={2}>
+        <Grid item>
+          <Select
+            value={memoryFormat}
+            onChange={(e) =>
+              setState((prevState) => ({
+                ...prevState,
+                memoryFormat: e.target.value as TextFormat,
+              }))
+            }
+            size="small"
+          >
+            <MenuItem value={TextFormat.Ascii}>Ascii</MenuItem>
+            <MenuItem value={TextFormat.Hexadecimal}>Hex</MenuItem>
+            <MenuItem value={TextFormat.Decimal}>Decimal</MenuItem>
+          </Select>
+        </Grid>
+        <Grid item>
           <Grid container className="memory-grid-container" spacing={0}>
             {memory.map((value, index) => (
               <Grid item key={index} className="memory-grid-item">
@@ -33,22 +49,6 @@ const MemoryVisualizer: React.FC<ControlsProps> = ({
               </Grid>
             ))}
           </Grid>
-        </Grid>
-        <Grid item xs={2}>
-          <Select
-            value={memoryFormat}
-            onChange={(e) =>
-              setState((prevState) => ({
-                ...prevState,
-                memoryFormat: e.target.value as TextFormat,
-              }))
-            }
-            fullWidth
-          >
-            <MenuItem value={TextFormat.Ascii}>Ascii</MenuItem>
-            <MenuItem value={TextFormat.Hexadecimal}>Hex</MenuItem>
-            <MenuItem value={TextFormat.Decimal}>Decimal</MenuItem>
-          </Select>
         </Grid>
       </Grid>
     </FormControl>
