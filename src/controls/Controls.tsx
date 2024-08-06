@@ -19,58 +19,57 @@ const Controls: React.FC<ControlsProps> = ({
   setState,
 }) => {
   return (
-    <div className="full-screen-container">
-      <Grid container direction="column" spacing={2} style={{ height: '100%' }}>
-        <Grid item>
-          <Typography variant="h6" gutterBottom>
-            Input
-          </Typography>
-          <TextField
-            label="Input"
-            variant="outlined"
-            fullWidth
-            value={stdin}
-            onChange={(e) => setState({ ...state, stdin: e.target.value })}
-          />
-        </Grid>
-
-        <Grid item>
-          <Typography variant="h6" gutterBottom>
-            Memory
-          </Typography>
-          <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
-            <MemoryVisualizer state={state} setState={setState} />
-          </div>
-        </Grid>
-
-        <Grid item xs>
-          <Typography variant="h6" gutterBottom>
-            Output
-          </Typography>
-          <FormControl fullWidth style={{ height: '100%' }}>
-            <Grid
-              container
-              direction="column"
-              spacing={2}
-              style={{ height: '100%' }}
-            >
-              <Grid item>
-                <Select
-                  value={outputFormat}
-                  onChange={(e) =>
-                    setState({
-                      ...state,
-                      outputFormat: e.target.value as TextFormat,
-                    })
-                  }
-                  size="small"
-                >
-                  <MenuItem value={TextFormat.Ascii}>Ascii</MenuItem>
-                  <MenuItem value={TextFormat.Hexadecimal}>Hex</MenuItem>
-                  <MenuItem value={TextFormat.Decimal}>Decimal</MenuItem>
-                </Select>
-              </Grid>
-              <Grid item xs style={{ minHeight: 0 }}>
+    <div className="full-screen-container scrollable">
+      <div className="section input-section">
+        <Typography variant="h6" gutterBottom>
+          Input
+        </Typography>
+        <TextField
+          label="Input"
+          variant="outlined"
+          fullWidth
+          value={stdin}
+          onChange={(e) => setState({ ...state, stdin: e.target.value })}
+        />
+      </div>
+      <div className="section memory-visualizer-section">
+        <Typography variant="h6" gutterBottom>
+          Memory
+        </Typography>
+        <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+          <MemoryVisualizer state={state} setState={setState} />
+        </div>
+      </div>
+      <div className="section output-section">
+        <Typography variant="h6" gutterBottom>
+          Output
+        </Typography>
+        <FormControl fullWidth>
+          <Grid container direction="column" spacing={2}>
+            <Grid item>
+              <Select
+                value={outputFormat}
+                onChange={(e) =>
+                  setState({
+                    ...state,
+                    outputFormat: e.target.value as TextFormat,
+                  })
+                }
+                size="small"
+              >
+                <MenuItem value={TextFormat.Ascii}>Ascii</MenuItem>
+                <MenuItem value={TextFormat.Hexadecimal}>Hex</MenuItem>
+                <MenuItem value={TextFormat.Decimal}>Decimal</MenuItem>
+              </Select>
+            </Grid>
+            <Grid item>
+              <Box
+                sx={{
+                  height: '300px',
+                  overflow: 'auto',
+                  marginBottom: '100px',
+                }}
+              >
                 <TextareaAutosize
                   id="output"
                   placeholder="Output"
@@ -79,16 +78,16 @@ const Controls: React.FC<ControlsProps> = ({
                   style={{
                     width: '100%',
                     height: '100%',
-                    resize: 'none',
+                    resize: 'vertical',
                     overflow: 'auto',
                   }}
                   className="output-textarea"
                 />
-              </Grid>
+              </Box>
             </Grid>
-          </FormControl>
-        </Grid>
-      </Grid>
+          </Grid>
+        </FormControl>
+      </div>
     </div>
   );
 };
