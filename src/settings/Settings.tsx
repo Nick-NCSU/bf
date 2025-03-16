@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { MemoryBits, EofBehavior, Settings } from '../types';
 import './styles.css';
 
@@ -15,18 +15,30 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
   settings,
   setSettings,
 }) => {
+  useEffect(() => {
+    const savedSettings = localStorage.getItem('appSettings');
+    if (savedSettings) {
+      setSettings(JSON.parse(savedSettings));
+    }
+  }, [setSettings]);
+
+  const updateSettings = (newSettings: Settings) => {
+    setSettings(newSettings);
+    localStorage.setItem('appSettings', JSON.stringify(newSettings));
+  };
+
   if (!isOpen) return null;
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = e.target;
-    setSettings((prev) => ({ ...prev, [name]: checked }));
+    updateSettings({ ...settings, [name]: checked });
   };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setSettings((prev) => ({ ...prev, [name]: value }));
+    updateSettings({ ...settings, [name]: value });
   };
 
   return (
